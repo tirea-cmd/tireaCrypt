@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TireaCrypt — Quantum-Resistant Storage</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --navy:#020b18;
+  --navy2:#041428;
+  --cyan:#00BFFF;
+  --cyan2:#00e5ff;
+  --white:#ffffff;
+  --gray:#8899aa;
+  --gray2:#1a2a3a;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--navy);color:var(--white);font-family:'Sora',sans-serif;overflow-x:hidden;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(0,191,255,0.1);backdrop-filter:blur(12px);background:rgba(2,11,24,0.85);}
+.nav-logo{display:flex;align-items:center;gap:12px;}
+.nav-logo svg{width:36px;height:36px;}
+.nav-logo-text{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;letter-spacing:-0.02em;}
+.nav-logo-text span{color:var(--cyan);}
+.nav-links{display:flex;gap:32px;align-items:center;}
+.nav-links a{color:var(--gray);text-decoration:none;font-size:14px;font-weight:400;transition:color .2s;letter-spacing:0.02em;}
+.nav-links a:hover{color:var(--white);}
+.nav-cta{background:var(--cyan);color:var(--navy);padding:10px 22px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;font-family:'Space Mono',monospace;transition:background .2s;}
+.nav-cta:hover{background:var(--cyan2);}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;z-index:0;}
+.hero-bg::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:700px;height:700px;border-radius:50%;border:1px solid rgba(0,191,255,0.08);animation:pulse 4s ease-in-out infinite;}
+.hero-bg::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:500px;height:500px;border-radius:50%;border:1px solid rgba(0,191,255,0.12);animation:pulse 4s ease-in-out infinite .5s;}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,191,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,191,255,0.04) 1px,transparent 1px);background-size:60px 60px;}
+@keyframes pulse{0%,100%{opacity:.4;transform:translate(-50%,-50%) scale(1);}50%{opacity:.8;transform:translate(-50%,-50%) scale(1.05);}}
+.hero-content{position:relative;z-index:1;max-width:800px;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(0,191,255,0.3);border-radius:100px;padding:6px 16px;font-size:12px;color:var(--cyan);font-family:'Space Mono',monospace;letter-spacing:0.08em;margin-bottom:32px;background:rgba(0,191,255,0.05);}
+.hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+.hero h1{font-size:clamp(42px,7vw,84px);font-weight:600;line-height:1.05;letter-spacing:-0.03em;margin-bottom:24px;}
+.hero h1 span{color:var(--cyan);}
+.hero-sub{font-size:clamp(16px,2vw,20px);color:var(--gray);font-weight:300;line-height:1.6;max-width:560px;margin:0 auto 48px;}
+.hero-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+.btn-primary{background:var(--cyan);color:var(--navy);padding:16px 32px;border-radius:8px;font-size:15px;font-weight:700;text-decoration:none;font-family:'Space Mono',monospace;transition:all .2s;letter-spacing:0.02em;}
+.btn-primary:hover{background:var(--cyan2);transform:translateY(-2px);}
+.btn-secondary{border:1px solid rgba(0,191,255,0.4);color:var(--cyan);padding:16px 32px;border-radius:8px;font-size:15px;font-weight:400;text-decoration:none;font-family:'Space Mono',monospace;transition:all .2s;}
+.btn-secondary:hover{border-color:var(--cyan);background:rgba(0,191,255,0.05);}
+.hero-stat-row{display:flex;gap:48px;justify-content:center;margin-top:72px;padding-top:48px;border-top:1px solid rgba(0,191,255,0.1);}
+.hero-stat{text-align:center;}
+.hero-stat-val{font-size:32px;font-weight:600;font-family:'Space Mono',monospace;color:var(--cyan);}
+.hero-stat-lbl{font-size:12px;color:var(--gray);margin-top:4px;letter-spacing:0.04em;}
+
+/* LOGO ATOM */
+.atom-logo{display:inline-flex;align-items:center;gap:14px;margin-bottom:40px;}
+.atom-logo svg{width:52px;height:52px;}
+
+/* PROBLEM */
+.section{padding:100px 24px;}
+.section-inner{max-width:1100px;margin:0 auto;}
+.section-tag{font-family:'Space Mono',monospace;font-size:11px;color:var(--cyan);letter-spacing:0.14em;margin-bottom:16px;}
+.section-title{font-size:clamp(28px,4vw,48px);font-weight:600;letter-spacing:-0.02em;line-height:1.15;margin-bottom:20px;}
+.section-sub{font-size:17px;color:var(--gray);line-height:1.7;max-width:560px;}
+
+.problem-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:56px;}
+.problem-card{background:var(--navy2);border:1px solid rgba(0,191,255,0.1);border-radius:12px;padding:32px;transition:border-color .2s;}
+.problem-card:hover{border-color:rgba(0,191,255,0.3);}
+.problem-icon{font-size:28px;margin-bottom:20px;}
+.problem-title{font-size:18px;font-weight:600;margin-bottom:10px;letter-spacing:-0.01em;}
+.problem-text{font-size:14px;color:var(--gray);line-height:1.7;}
+
+/* HOW IT WORKS */
+.how-section{background:var(--navy2);padding:100px 24px;}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0;margin-top:64px;position:relative;}
+.steps::before{content:'';position:absolute;top:28px;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(0,191,255,0.3),transparent);}
+.step{text-align:center;padding:0 20px;position:relative;}
+.step-num{width:56px;height:56px;border-radius:50%;border:1px solid var(--cyan);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:var(--cyan);background:var(--navy);position:relative;z-index:1;}
+.step-title{font-size:16px;font-weight:600;margin-bottom:10px;}
+.step-text{font-size:13px;color:var(--gray);line-height:1.6;}
+
+/* FEATURES */
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;margin-top:64px;}
+.feature-card{border:1px solid rgba(0,191,255,0.12);border-radius:14px;padding:36px;background:rgba(0,191,255,0.02);transition:all .25s;position:relative;overflow:hidden;}
+.feature-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:0;transition:opacity .25s;}
+.feature-card:hover{border-color:rgba(0,191,255,0.35);background:rgba(0,191,255,0.04);}
+.feature-card:hover::before{opacity:1;}
+.feature-icon{width:48px;height:48px;background:rgba(0,191,255,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:22px;}
+.feature-title{font-size:18px;font-weight:600;margin-bottom:10px;letter-spacing:-0.01em;}
+.feature-text{font-size:14px;color:var(--gray);line-height:1.7;}
+.feature-tag{display:inline-block;background:rgba(0,191,255,0.1);color:var(--cyan);font-size:11px;font-family:'Space Mono',monospace;padding:4px 10px;border-radius:4px;margin-top:16px;letter-spacing:0.06em;}
+
+/* PRICING */
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;margin-top:64px;max-width:900px;margin-left:auto;margin-right:auto;}
+.pricing-card{border:1px solid rgba(0,191,255,0.15);border-radius:16px;padding:40px 32px;background:var(--navy2);}
+.pricing-card.featured{border-color:var(--cyan);background:rgba(0,191,255,0.06);position:relative;}
+.pricing-badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--cyan);color:var(--navy);font-size:11px;font-weight:700;font-family:'Space Mono',monospace;padding:5px 16px;border-radius:100px;white-space:nowrap;letter-spacing:0.06em;}
+.pricing-plan{font-size:13px;color:var(--gray);font-family:'Space Mono',monospace;letter-spacing:0.08em;margin-bottom:12px;}
+.pricing-price{font-size:48px;font-weight:700;font-family:'Space Mono',monospace;color:var(--white);line-height:1;}
+.pricing-price span{font-size:18px;color:var(--gray);font-weight:400;}
+.pricing-period{font-size:13px;color:var(--gray);margin-top:6px;margin-bottom:28px;}
+.pricing-features{list-style:none;display:flex;flex-direction:column;gap:12px;margin-bottom:32px;}
+.pricing-features li{font-size:14px;color:var(--gray);display:flex;align-items:center;gap:10px;}
+.pricing-features li::before{content:'';width:16px;height:16px;border-radius:50%;background:rgba(0,191,255,0.15);border:1px solid var(--cyan);flex-shrink:0;position:relative;}
+.pricing-features li::before{background:var(--cyan);border:none;mask:url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 8l3.5 3.5L13 5' stroke='%23020b18' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E") center/cover;}
+.btn-plan{display:block;text-align:center;padding:14px;border-radius:8px;font-size:14px;font-weight:700;font-family:'Space Mono',monospace;text-decoration:none;transition:all .2s;letter-spacing:0.02em;}
+.btn-plan-outline{border:1px solid rgba(0,191,255,0.4);color:var(--cyan);}
+.btn-plan-outline:hover{background:rgba(0,191,255,0.08);}
+.btn-plan-filled{background:var(--cyan);color:var(--navy);}
+.btn-plan-filled:hover{background:var(--cyan2);}
+
+/* TESTIMONIAL / TRUST */
+.trust-section{padding:80px 24px;border-top:1px solid rgba(0,191,255,0.08);border-bottom:1px solid rgba(0,191,255,0.08);}
+.trust-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px;text-align:center;max-width:800px;margin:48px auto 0;}
+.trust-item-val{font-size:36px;font-weight:700;font-family:'Space Mono',monospace;color:var(--cyan);}
+.trust-item-lbl{font-size:13px;color:var(--gray);margin-top:6px;line-height:1.5;}
+
+/* CTA FINAL */
+.cta-section{padding:120px 24px;text-align:center;position:relative;overflow:hidden;}
+.cta-section::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(0,191,255,0.07) 0%,transparent 70%);pointer-events:none;}
+.cta-section h2{font-size:clamp(32px,5vw,60px);font-weight:600;letter-spacing:-0.03em;margin-bottom:20px;line-height:1.1;}
+.cta-section p{font-size:18px;color:var(--gray);margin-bottom:48px;line-height:1.6;}
+
+/* FOOTER */
+footer{border-top:1px solid rgba(0,191,255,0.1);padding:48px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+.footer-logo{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;}
+.footer-logo span{color:var(--cyan);}
+.footer-copy{font-size:13px;color:var(--gray);}
+.footer-links{display:flex;gap:24px;}
+.footer-links a{font-size:13px;color:var(--gray);text-decoration:none;transition:color .2s;}
+.footer-links a:hover{color:var(--cyan);}
+
+/* ALGO BADGE */
+.algo-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:32px;}
+.algo-badge{background:rgba(0,191,255,0.08);border:1px solid rgba(0,191,255,0.2);border-radius:6px;padding:8px 16px;font-family:'Space Mono',monospace;font-size:12px;color:var(--cyan);letter-spacing:0.06em;}
+
+@media(max-width:768px){
+  nav{padding:16px 20px;}
+  .nav-links{display:none;}
+  .hero-stat-row{gap:24px;}
+  .steps::before{display:none;}
+  footer{flex-direction:column;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <svg viewBox="0 0 36 36" fill="none">
+      <ellipse cx="18" cy="18" rx="16" ry="7" stroke="#00BFFF" stroke-width="1.5"/>
+      <ellipse cx="18" cy="18" rx="16" ry="7" stroke="#00BFFF" stroke-width="1.5" transform="rotate(60 18 18)"/>
+      <ellipse cx="18" cy="18" rx="16" ry="7" stroke="#00BFFF" stroke-width="1.5" transform="rotate(120 18 18)"/>
+      <circle cx="18" cy="18" r="4" fill="#00BFFF"/>
+    </svg>
+    <span class="nav-logo-text">Tirea<span>Crypt</span></span>
+  </div>
+  <div class="nav-links">
+    <a href="#problem">Problema</a>
+    <a href="#features">Funcționalități</a>
+    <a href="#pricing">Prețuri</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <a href="#pricing" class="nav-cta">Începe gratuit</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg">
+    <div class="hero-grid"></div>
+  </div>
+  <div class="hero-content">
+    <div class="atom-logo">
+      <svg viewBox="0 0 52 52" fill="none">
+        <ellipse cx="26" cy="26" rx="23" ry="10" stroke="#00BFFF" stroke-width="1.8"/>
+        <ellipse cx="26" cy="26" rx="23" ry="10" stroke="#00BFFF" stroke-width="1.8" transform="rotate(60 26 26)"/>
+        <ellipse cx="26" cy="26" rx="23" ry="10" stroke="#00BFFF" stroke-width="1.8" transform="rotate(120 26 26)"/>
+        <circle cx="26" cy="26" r="6" fill="#00BFFF"/>
+        <circle cx="49" cy="26" r="3" fill="#00BFFF" opacity="0.6"/>
+      </svg>
+    </div>
+    <div class="hero-badge">🔐 &nbsp;PREGĂTIT PENTRU ERA CUANTICĂ</div>
+    <h1>Datele tale,<br/>sigure <span>pentru totdeauna</span></h1>
+    <p class="hero-sub">TireaCrypt protejează parolele, seed phrase-urile și documentele tale cu criptografie post-cuantică — standardul recomandat de NIST pentru viitorul computerelor cuantice.</p>
+    <div class="hero-actions">
+      <a href="#pricing" class="btn-primary">Încearcă gratuit</a>
+      <a href="#features" class="btn-secondary">Cum funcționează →</a>
+    </div>
+    <div class="algo-row">
+      <span class="algo-badge">CRYSTALS-Kyber</span>
+      <span class="algo-badge">ML-KEM / NIST 2024</span>
+      <span class="algo-badge">Dilithium</span>
+      <span class="algo-badge">PQC Ready</span>
+    </div>
+    <div class="hero-stat-row">
+      <div class="hero-stat">
+        <div class="hero-stat-val">256-bit</div>
+        <div class="hero-stat-lbl">Securitate cuantică</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">0</div>
+        <div class="hero-stat-lbl">Date pe serverele noastre</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">2035+</div>
+        <div class="hero-stat-lbl">Protecție garantată</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEMA -->
+<section class="section" id="problem">
+  <div class="section-inner">
+    <div class="section-tag">// PROBLEMA</div>
+    <h2 class="section-title">Q-Day vine.<br/>Ești pregătit?</h2>
+    <p class="section-sub">Computerele cuantice vor putea sparge în câteva secunde tot ce este criptat azi. Inclusiv portofelele tale crypto și parolele bancare.</p>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-icon">⚠️</div>
+        <div class="problem-title">Harvest Now, Decrypt Later</div>
+        <div class="problem-text">Hackerii colectează date criptate acum și le vor decripta când computerele cuantice vor fi disponibile. Datele tale de azi sunt în pericol mâine.</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">🔓</div>
+        <div class="problem-title">RSA și AES sunt vulnerabile</div>
+        <div class="problem-text">Algoritmii clasici de criptare — folosiți de bănci, aplicații și manageri de parole — vor fi sparți de algoritmul Shor pe un computer cuantic suficient de puternic.</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">⏰</div>
+        <div class="problem-title">Q-Day: 5–15 ani</div>
+        <div class="problem-text">Experții estimează că computerele cuantice capabile să spargă criptarea actuală vor apărea între 2030 și 2040. Proiectul RoNaQCI din România deja pregătește infrastructura.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CUM FUNCTIONEAZA -->
+<section class="how-section" id="how">
+  <div class="section-inner">
+    <div class="section-tag">// CUM FUNCȚIONEAZĂ</div>
+    <h2 class="section-title">Simplu pentru tine.<br/>Imposibil pentru hackeri.</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-title">Adaugi datele</div>
+        <div class="step-text">Parole, seed phrases sau documente. Interfață simplă, la fel ca orice manager de parole.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-title">Criptare PQC</div>
+        <div class="step-text">TireaCrypt aplică automat CRYSTALS-Kyber — algoritmul post-cuantic aprobat de NIST în 2024.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-title">Stocare locală</div>
+        <div class="step-text">Datele rămân pe dispozitivul tău. Noi nu vedem nimic. Zero acces din exterior.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-title">Acces instant</div>
+        <div class="step-text">Decriptare instantă cu parola ta master. Rapid, sigur, disponibil offline.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="section-inner">
+    <div class="section-tag">// FUNCȚIONALITĂȚI</div>
+    <h2 class="section-title">Tot ce ai nevoie.<br/>Nimic în plus.</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔐</div>
+        <div class="feature-title">Criptare Post-Cuantică</div>
+        <div class="feature-text">Algoritmii CRYSTALS-Kyber și Dilithium — standardele oficiale NIST 2024 pentru era cuantică. Nu experimente, ci știință validată.</div>
+        <span class="feature-tag">ML-KEM · ML-DSA</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💾</div>
+        <div class="feature-title">Local-First</div>
+        <div class="feature-text">Datele tale nu părăsesc niciodată dispozitivul. Nicio bază de date în cloud, niciun server de-al nostru nu vede informațiile tale.</div>
+        <span class="feature-tag">Zero Knowledge</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌱</div>
+        <div class="feature-title">Protecție Seed Phrases</div>
+        <div class="feature-text">Stocare specializată pentru frazele seed de la portofele crypto. Cel mai vulnerabil activ digital al tău, acum cu protecție maximă.</div>
+        <span class="feature-tag">Crypto Safe</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📄</div>
+        <div class="feature-title">Documente Criptate</div>
+        <div class="feature-text">Scanează și stochează documente sensibile — acte de identitate, contracte, certificate — criptate cu același standard cuantic.</div>
+        <span class="feature-tag">Document Vault</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏢</div>
+        <div class="feature-title">Versiune B2B</div>
+        <div class="feature-text">Soluție white-label pentru firme de avocatură, contabilitate și notariat. Conformitate GDPR cu protecție post-cuantică pentru datele clienților.</div>
+        <span class="feature-tag">Enterprise Ready</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <div class="feature-title">Mobil + Desktop</div>
+        <div class="feature-text">Disponibil pe iOS, Android și Windows. Sincronizare opțională end-to-end criptată între dispozitive.</div>
+        <span class="feature-tag">Cross-Platform</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST STATS -->
+<section class="trust-section">
+  <div class="section-inner" style="text-align:center;">
+    <div class="section-tag" style="text-align:center;">// DE CE ACUM</div>
+    <h2 class="section-title" style="text-align:center;">Timing-ul contează</h2>
+    <div class="trust-grid">
+      <div>
+        <div class="trust-item-val">2024</div>
+        <div class="trust-item-lbl">NIST a finalizat standardele PQC — algoritmii sunt gata</div>
+      </div>
+      <div>
+        <div class="trust-item-val">RoNaQCI</div>
+        <div class="trust-item-lbl">Proiectul național de rețea cuantică din România — deja activ</div>
+      </div>
+      <div>
+        <div class="trust-item-val">$1T+</div>
+        <div class="trust-item-lbl">Valoare crypto expusă la riscul cuantic în portofelele existente</div>
+      </div>
+      <div>
+        <div class="trust-item-val">Acum</div>
+        <div class="trust-item-lbl">Momentul optim de a adopta PQC înainte să fie obligatoriu</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section" id="pricing">
+  <div class="section-inner">
+    <div class="section-tag">// PREȚURI</div>
+    <h2 class="section-title" style="text-align:center;">Simplu și transparent</h2>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="pricing-plan">FREE</div>
+        <div class="pricing-price">0<span> €</span></div>
+        <div class="pricing-period">pentru totdeauna</div>
+        <ul class="pricing-features">
+          <li>Până la 5 secrete stocate</li>
+          <li>Criptare PQC completă</li>
+          <li>Stocare locală</li>
+          <li>Actualizări de securitate</li>
+        </ul>
+        <a href="#contact" class="btn-plan btn-plan-outline">Începe gratuit</a>
+      </div>
+      <div class="pricing-card featured">
+        <div class="pricing-badge">CEL MAI POPULAR</div>
+        <div class="pricing-plan">PRO</div>
+        <div class="pricing-price">3<span> €</span></div>
+        <div class="pricing-period">pe lună · facturat anual</div>
+        <ul class="pricing-features">
+          <li>Secrete nelimitate</li>
+          <li>Documente scanate</li>
+          <li>Backup criptat în cloud</li>
+          <li>Sincronizare multi-device</li>
+          <li>Suport prioritar</li>
+        </ul>
+        <a href="#contact" class="btn-plan btn-plan-filled">Încearcă 30 zile gratuit</a>
+      </div>
+      <div class="pricing-card">
+        <div class="pricing-plan">BUSINESS</div>
+        <div class="pricing-price">49<span> €</span></div>
+        <div class="pricing-period">pe lună · până la 10 utilizatori</div>
+        <ul class="pricing-features">
+          <li>Tot din Pro</li>
+          <li>Panou de administrare</li>
+          <li>White-label disponibil</li>
+          <li>Audit trail complet</li>
+          <li>Onboarding dedicat</li>
+          <li>SLA 99.9%</li>
+        </ul>
+        <a href="#contact" class="btn-plan btn-plan-outline">Contactează-ne</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-section" id="contact">
+  <div class="section-inner" style="text-align:center;">
+    <div class="section-tag">// ACȚIONEAZĂ ACUM</div>
+    <h2>Q-Day nu anunță.<br/>Tu poți fi <span style="color:var(--cyan)">pregătit.</span></h2>
+    <p>Înregistrează-te acum și primești acces beta gratuit + 3 luni Pro cadou.</p>
+    <div style="display:flex;gap:12px;justify-content:center;max-width:480px;margin:0 auto;">
+      <input type="email" placeholder="emailul tău" style="flex:1;padding:16px 20px;border-radius:8px;border:1px solid rgba(0,191,255,0.3);background:rgba(0,191,255,0.05);color:white;font-size:15px;font-family:'Sora',sans-serif;outline:none;"/>
+      <button style="background:var(--cyan);color:var(--navy);padding:16px 24px;border-radius:8px;border:none;font-size:14px;font-weight:700;font-family:'Space Mono',monospace;cursor:pointer;white-space:nowrap;">Intru pe listă</button>
+    </div>
+    <p style="font-size:12px;color:var(--gray);margin-top:16px;">Fără spam. Anulezi oricând. Datele tale sunt... evident criptate. 🔐</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Tirea<span>Crypt</span></div>
+  <div class="footer-copy">© 2025 TireaCrypt. Securitate post-cuantică pentru toți.</div>
+  <div class="footer-links">
+    <a href="#">Confidențialitate</a>
+    <a href="#">Termeni</a>
+    <a href="#">Contact</a>
+  </div>
+</footer>
+
+</body>
+</html>
